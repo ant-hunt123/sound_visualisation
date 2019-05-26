@@ -1,22 +1,19 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-canvas.width = innerWidth;
-canvas.height = innerHeight;
 var animationref = null ;
 const audioLoader = new AudioLoader();
 var audios = ['audio_test','audio_test2','audio_test3'];
 var controls = {
-  current_audio:'audio_test2',
+  current_audio:'audio_test3',
   is_audio_playing:false,
   intensity:1,
   auto_play:true
 }
-
 var audio = audioLoader.load('assets/audio/'+  controls.current_audio+'.mp3');
 var audioctx = new AudioContext();
-
 var gui = new dat.GUI({ height:500});
-
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 gui.add(controls, 'is_audio_playing').listen().onChange(()=>{ if(controls.is_audio_playing){ start()}});
 // gui.add(controls,'auto_play').onChange(()=>{if(controls.auto_play) audio.autoPlay = false});
 gui.add(controls, 'current_audio',audios).onChange(()=>{ audio.pause(); 
@@ -28,9 +25,6 @@ gui.add(controls, 'current_audio',audios).onChange(()=>{ audio.pause();
 // { start()}
 }
 );
-
-
-
 
 function start(){
 const source = audioctx.createMediaElementSource(audio); 
