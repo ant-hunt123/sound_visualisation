@@ -13,6 +13,7 @@ var controls = {
 }
 
 var audio = audioLoader.load('assets/audio/'+  controls.current_audio+'.mp3');
+var audioctx = new AudioContext();
 
 var gui = new dat.GUI({ height:500});
 
@@ -32,7 +33,6 @@ gui.add(controls, 'current_audio',audios).onChange(()=>{ audio.pause();
 
 
 function start(){
-const audioctx = new AudioContext();
 const source = audioctx.createMediaElementSource(audio); 
 const gainNode = audioctx.createGain();
 gainNode.gain.value = 7;
