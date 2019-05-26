@@ -16,7 +16,6 @@ controls.font_size = '8vw' ;
 else
 controls.font_size = '6vw' ;
 var audio = audioLoader.load('assets/audio/'+  controls.current_audio+'.mp3');
-var audioctx = new AudioContext();
 var gui = new dat.GUI({ height:500});
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -42,6 +41,7 @@ gui.add(controls, 'current_audio',audios).name('PLAYLIST').onChange(()=>{ audio.
 );
 
 function start(){
+var audioctx = new AudioContext();
 const source = audioctx.createMediaElementSource(audio); 
 const gainNode = audioctx.createGain();
 gainNode.gain.value = 7;
