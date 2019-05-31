@@ -1,3 +1,5 @@
+var Radius;
+var radian = Math.PI/180;
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 var animationref = null ;
@@ -6,27 +8,38 @@ var audios = ['audio_test','audio_test2','audio_test3'];
 var controls = {
   current_audio:'audio_test3',
   is_audio_playing:false,
-  intensity:1,
+  intensity:3.3,
   auto_play:true,
-  radius:50,
+  Radius:250,
   font_size:'8vw'
 }
+var colors = {
+  outer:270,
+  inner:184
+}
+var gui = new dat.GUI({ height:500});
+var txt = "PLAY THEN !!" ;
+var controlFolder = gui.addFolder('CONTROLS_BASIC');
+var colorFolder  = gui.addFolder('STROKE_COLOR');
+var audio = audioLoader.load('assets/audio/'+  controls.current_audio+'.mp3');
+
+audio.crossOrigin = "anonymous";
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 if(window.innerWidth<300)
 controls.font_size = '8vw' ;
 else
 controls.font_size = '6vw' ;
-var audio = audioLoader.load('assets/audio/'+  controls.current_audio+'.mp3');
-var gui = new dat.GUI({ height:500});
-canvas.width = innerWidth;
-canvas.height = innerHeight;
 ctx.font = ''+ controls.font_size+' Cinzel, serif';
 ctx.fillStyle = 'rgba(255,255,255,0.5)';
 ctx.textAlign = "center";
-ctx.fillText("PLAY FROM CONTROLS !!", canvas.width/2, canvas.height/2); 
-gui.add(controls, 'is_audio_playing').name('PLAY/PAUSE').listen().onChange(()=>{ if(controls.is_audio_playing){ start()}});
-gui.add(controls,'radius',10,100).name('RADIUS').onChange(()=>{});
-gui.add(controls,'intensity',1,15).name('VIBRATIONS').onChange(()=>{});
-gui.add(controls, 'current_audio',audios).name('PLAYLIST').onChange(()=>{ audio.pause(); 
+ctx.fillText(txt, canvas.width/2, canvas.height/2); 
+colorFolder.add(colors,'outer',0,360);
+colorFolder.add(colors,'inner',0,360);
+colorFolder.open();
+
+controlFolder.add(controls, 'is_audio_playing').name('PLAY/PAUSE').listen().onChange(()=>{ if(controls.is_audio_playing){ start()}});
+controlFolder.add(controls, 'current_audio',audios).name('PLAYLIST').onChange(()=>{ audio.pause(); 
   cancelAnimationFrame(animationref);  
   audio = audioLoader.load('assets/audio/'+  controls.current_audio+'.mp3');
   controls.is_audio_playing = false;
@@ -34,11 +47,14 @@ gui.add(controls, 'current_audio',audios).name('PLAYLIST').onChange(()=>{ audio.
   ctx.font = ''+ controls.font_size+' Cinzel, serif';
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.textAlign = "center";
-  ctx.fillText("PLAY FROM CONTROLS !! ", canvas.width/2, canvas.height/2); 
-// if(controls.is_audio_playing)
-// { start()}
+  ctx.fillText(txt, canvas.width/2, canvas.height/2); 
 }
 );
+controlFolder.add(controls,'Radius',10,250).name('Radius').onChange(()=>{});
+controlFolder.add(controls,'intensity',1,15).name('VIBRATIONS').onChange(()=>{});
+
+controlFolder.open();  
+
 
 function start(){
 var audioctx = new AudioContext();
@@ -49,15 +65,13 @@ source.connect(gainNode).connect(audioctx.destination);
 var analyser = audioctx.createAnalyser();
 source.disconnect();
 source.connect(analyser);
-analyser.fftSize = 256;
+analyser.fftSize = 512;
 analyser.connect(audioctx.destination);
-
 var bufferLength = analyser.frequencyBinCount;
 var dataArray = new Uint8Array(bufferLength);
 var dataArray2 = new Uint8Array(bufferLength);
 var angular_width = Math.PI*2/(bufferLength);
 var rect_width = innerWidth/bufferLength ;
-// audio.play();
 function animate(){
 
     if(controls.is_audio_playing){
@@ -67,34 +81,47 @@ function animate(){
     audio.pause();
 
     ctx.beginPath();
-    analyser.getByteTimeDomainData(dataArray2);  
-    analyser.getByteFrequencyData(dataArray);
+    analyser.getByteTimeDomainData(dataArray);  
+    analyser.getByteFrequencyData(dataArray2);
     animationref = requestAnimationFrame(animate) ;
     ctx.clearRect(0,0,innerWidth,innerHeight);
-    var radius = controls.radius + (dataArray2[10]/100)*controls.intensity;
-    for(var i = 3; i <bufferLength ; i++){
-        draw_bars(ctx,i*angular_width*1.6,dataArray[i] ,radius);
-  
+    Radius = controls.Radius + (dataArray2[10]/100)*controls.intensity;
+    for(var i = 0;i*angular_width*3<Math.PI*2; i++){
+      if(i*angular_width*3 < Math.PI/2-radian*4&&i*angular_width*3 >0+4*radian ||i*angular_width*3<Math.PI - 4*radian&&i*angular_width*3> Math.PI/2 + 4*radian||i*angular_width*3>Math.PI + 4*radian &&i*angular_width*3 <Math.PI*3/2-4*radian ||i*angular_width*3>Math.PI*3/2+radian*4&&i*angular_width*3<Math.PI*2 -4*radian)
+        draw_particles(ctx,i*angular_width*3 ,dataArray[0]/9,Radius/1.9);
+        else{}
+        draw_bars(ctx,i*angular_width*3,dataArray2[i]/3.5 ,Radius);  
     }
    
 }
 animate();
 }
 
-function draw_bars(ctx, angle,height,radius){
-ctx.translate(innerWidth/2, innerHeight/2);
-//   ctx.lineCap = "round";
-ctx.strokeStyle = "blue";
-  ctx.lineWidth = "4";
+function draw_bars(ctx, angle,height,Radius){
+ ctx.translate(innerWidth/2, innerHeight/2);
+  ctx.lineWidth = "2.2";
   ctx.moveTo(0, 0);
   ctx.rotate(angle);
-  ctx.moveTo(0,-radius);
-  ctx.lineTo(0,-(radius+height));
+  ctx.moveTo(0,-Radius);
+  ctx.lineTo(0,-(Radius+height));
   ctx.moveTo(0,0);
-  ctx.stroke();
+  ctx.strokeStyle = 'hsl('+colors.outer+',64%,57%)';
+   ctx.stroke();
   ctx.beginPath();
   ctx.rotate(-angle);
   ctx.translate(-innerWidth/2, -innerHeight/2);
 }
 
+function draw_particles(ctx,angle,height,radius){
+  ctx.translate(innerWidth/2, innerHeight/2);
+  ctx.rotate(angle);
+  ctx.moveTo(0, 0);
+   ctx.moveTo(0,-radius-height);
+  ctx.arc(0,-radius-height,3.5,0,Math.PI*2);
+  ctx.fillStyle = 'hsl('+colors.inner+', 64%,57%)';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.rotate(-angle);
+  ctx.translate(-innerWidth/2, -innerHeight/2);
+}
 
