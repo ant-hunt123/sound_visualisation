@@ -1,21 +1,26 @@
+var time = 0;
 var Radius;
+var params = {
+  color: "rgb(230,148, 1)"
+};
+
+var bass_radius;
+var frequency = 0.005;
 var radian = Math.PI/180;
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 var animationref = null ;
 const audioLoader = new AudioLoader();
-var audios = ['audio_test','audio_test2','audio_test3'];
+var audios = ['audio_test','audio_test2','audio_test3','audio_test4','audio_test5','audio_test6','audio_test7','audio_test8','audio_test9','audio_test10','audio_test11'];
 var controls = {
-  current_audio:'audio_test3',
+  current_audio:'audio_test10',
   is_audio_playing:false,
-  intensity:3.3,
+  intensity:1.7,
   auto_play:true,
   Radius:250,
+  separation:1.8,
+  frequency:0.005,
   font_size:'8vw'
-}
-var colors = {
-  outer:270,
-  inner:184
 }
 var gui = new dat.GUI({ height:500});
 var txt = "PLAY THEN !!" ;
@@ -34,8 +39,7 @@ ctx.font = ''+ controls.font_size+' Cinzel, serif';
 ctx.fillStyle = 'rgba(255,255,255,0.5)';
 ctx.textAlign = "center";
 ctx.fillText(txt, canvas.width/2, canvas.height/2); 
-colorFolder.add(colors,'outer',0,360);
-colorFolder.add(colors,'inner',0,360);
+colorFolder.addColor( params, 'color' );
 colorFolder.open();
 
 controlFolder.add(controls, 'is_audio_playing').name('PLAY/PAUSE').listen().onChange(()=>{ if(controls.is_audio_playing){ start()}});
@@ -52,6 +56,8 @@ controlFolder.add(controls, 'current_audio',audios).name('PLAYLIST').onChange(()
 );
 controlFolder.add(controls,'Radius',10,250).name('Radius').onChange(()=>{});
 controlFolder.add(controls,'intensity',1,15).name('VIBRATIONS').onChange(()=>{});
+controlFolder.add(controls,'separation',1,10).listen();
+controlFolder.add(controls,'frequency',0.005,0.009).listen();
 
 controlFolder.open();  
 
@@ -65,7 +71,7 @@ source.connect(gainNode).connect(audioctx.destination);
 var analyser = audioctx.createAnalyser();
 source.disconnect();
 source.connect(analyser);
-analyser.fftSize = 512;
+analyser.fftSize = 2048/2;
 analyser.connect(audioctx.destination);
 var bufferLength = analyser.frequencyBinCount;
 var dataArray = new Uint8Array(bufferLength);
@@ -85,43 +91,62 @@ function animate(){
     analyser.getByteFrequencyData(dataArray2);
     animationref = requestAnimationFrame(animate) ;
     ctx.clearRect(0,0,innerWidth,innerHeight);
-    Radius = controls.Radius + (dataArray2[10]/100)*controls.intensity;
-    for(var i = 0;i*angular_width*3<Math.PI*2; i++){
-      if(i*angular_width*3 < Math.PI/2-radian*4&&i*angular_width*3 >0+4*radian ||i*angular_width*3<Math.PI - 4*radian&&i*angular_width*3> Math.PI/2 + 4*radian||i*angular_width*3>Math.PI + 4*radian &&i*angular_width*3 <Math.PI*3/2-4*radian ||i*angular_width*3>Math.PI*3/2+radian*4&&i*angular_width*3<Math.PI*2 -4*radian)
-        draw_particles(ctx,i*angular_width*3 ,dataArray[0]/9,Radius/1.9);
-        else{}
-        draw_bars(ctx,i*angular_width*3,dataArray2[i]/3.5 ,Radius);  
+    Radius = controls.Radius + (dataArray[0]/20)*controls.intensity;
+    time++;
+    if(dataArray2[10]/3 > 67 ){
+    bass_radius = dataArray[10]*7/3;
+    ctx.arc(innerWidth/2, innerHeight/2, bass_radius*1.5, 0 , Math.PI*2 ,0 );
+    }
+
+    else {
+     bass_radius =dataArray2[10]/3 ; 
+     ctx.arc(innerWidth/2, innerHeight/2, bass_radius/1.2, 0 , Math.PI*2 ,0 );
+    }
+
+   
+    
+    for(var i = 0;i < bufferLength; i++){
+        let angle = i*angular_width*controls.separation;
+        let omega1 = Math.sin(time*controls.frequency);
+        let omega2 = Math.cos(time*controls.frequency);
+        let omega3 = Math.sin(time*controls.frequency+Math.PI)
+        if(i*angular_width*2.7<=Math.PI*2){
+        draw_bars(ctx,i*angular_width*2.7 + omega1 ,dataArray2[i]/3 ,Radius);
+        }
+        if(angle>=(Math.PI*2)/3 && angle<Math.PI*13/6){
+        draw_bars(ctx,angle+omega3,dataArray[i]/12,Radius/1.3);   
+        }
+        if(angle<=Math.PI*2)
+        draw_bars(ctx,angle+omega2 ,dataArray[100]/4,dataArray2[0]/60);
+
+  
     }
    
 }
 animate();
 }
-
 function draw_bars(ctx, angle,height,Radius){
  ctx.translate(innerWidth/2, innerHeight/2);
-  ctx.lineWidth = "2.2";
   ctx.moveTo(0, 0);
+  ctx.lineWidth = 3;
   ctx.rotate(angle);
   ctx.moveTo(0,-Radius);
   ctx.lineTo(0,-(Radius+height));
   ctx.moveTo(0,0);
-  ctx.strokeStyle = 'hsl('+colors.outer+',64%,57%)';
-   ctx.stroke();
+  ctx.strokeStyle =  params.color;
+  console.log(  '#'+params.color+'')
+  ctx.stroke();
   ctx.beginPath();
   ctx.rotate(-angle);
   ctx.translate(-innerWidth/2, -innerHeight/2);
 }
 
-function draw_particles(ctx,angle,height,radius){
-  ctx.translate(innerWidth/2, innerHeight/2);
-  ctx.rotate(angle);
-  ctx.moveTo(0, 0);
-   ctx.moveTo(0,-radius-height);
-  ctx.arc(0,-radius-height,3.5,0,Math.PI*2);
-  ctx.fillStyle = 'hsl('+colors.inner+', 64%,57%)';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.rotate(-angle);
-  ctx.translate(-innerWidth/2, -innerHeight/2);
-}
+// window.setInterval(function(){ colors.outer = Math.floor(Math.random()*360)},1500);
+// function hexToRgbNew(hex) {
+//   var arrBuff = new ArrayBuffer(4);
+//   var vw = new DataView(arrBuff);
+//   vw.setUint32(0,parseInt(hex, 16),false);
+//   var arrByte = new Uint8Array(arrBuff);
 
+//   return arrByte[1] + "," + arrByte[2] + "," + arrByte[3];
+// }
