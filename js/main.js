@@ -13,7 +13,7 @@ var animationref = null ;
 const audioLoader = new AudioLoader();
 var audios = ['audio_test','audio_test2','audio_test3','audio_test4','audio_test5','audio_test6','audio_test7','audio_test8','audio_test9','audio_test10','audio_test11'];
 var controls = {
-  current_audio:'audio_test10',
+  current_audio:'audio_test11',
   is_audio_playing:false,
   intensity:1.7,
   auto_play:true,
@@ -93,14 +93,15 @@ function animate(){
     ctx.clearRect(0,0,innerWidth,innerHeight);
     Radius = controls.Radius + (dataArray[0]/20)*controls.intensity;
     time++;
-    if(dataArray2[10]/3 > 67 ){
+    console.log(dataArray[30]/3)
+    if(dataArray[30]/3 > 49){
     bass_radius = dataArray[10]*7/3;
     ctx.arc(innerWidth/2, innerHeight/2, bass_radius*1.5, 0 , Math.PI*2 ,0 );
     }
 
     else {
-     bass_radius =dataArray2[10]/3 ; 
-     ctx.arc(innerWidth/2, innerHeight/2, bass_radius/1.2, 0 , Math.PI*2 ,0 );
+     bass_radius =dataArray[10]/3 ; 
+     ctx.arc(innerWidth/2, innerHeight/2, bass_radius, 0 , Math.PI*2 ,0 );
     }
 
    
@@ -134,7 +135,6 @@ function draw_bars(ctx, angle,height,Radius){
   ctx.lineTo(0,-(Radius+height));
   ctx.moveTo(0,0);
   ctx.strokeStyle =  params.color;
-  console.log(  '#'+params.color+'')
   ctx.stroke();
   ctx.beginPath();
   ctx.rotate(-angle);
