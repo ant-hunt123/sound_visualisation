@@ -11,14 +11,14 @@ const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 var animationref = null ;
 const audioLoader = new AudioLoader();
-var audios = ['audio_test','audio_test2','audio_test3','audio_test4','audio_test5','audio_test6','audio_test7','audio_test8','audio_test9','audio_test10','audio_test11'];
+var audios = ['audio_test','audio_test2','audio_test3','audio_test4','audio_test5','audio_test6','audio_test7','audio_test8','audio_test9','audio_test10','audio_test11','audio_test12'];
 var controls = {
   current_audio:'audio_test7',
   is_audio_playing:false,
   intensity:1.7,
   auto_play:true,
   Radius:250,
-  separation:1.8,
+  separation:1.2,
   frequency:0.005,
   font_size:'8vw',
   is_circle:true,
@@ -94,8 +94,9 @@ function animate(){
     ctx.clearRect(0,0,innerWidth,innerHeight);
     Radius = controls.Radius + (dataArray[0]/20)*controls.intensity;
     time++;
-    if(controls.vibrate)
-    document.querySelector('img').style = ' transform:skewX('+Math.cos(dataArray2[100]/70)+'deg);';
+    if(controls.vibrate){
+    document.querySelector('img').style = ' transform:skewX('+Math.cos(dataArray2[100]/100)+'deg);';
+    }
     if(controls.is_circle){
     if(dataArray[30]/3 > 49){
     bass_radius = dataArray[10]*7/3;
