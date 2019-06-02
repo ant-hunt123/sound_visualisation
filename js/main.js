@@ -20,7 +20,9 @@ var controls = {
   Radius:250,
   separation:1.8,
   frequency:0.005,
-  font_size:'8vw'
+  font_size:'8vw',
+  is_circle:true,
+  vibrate:true
 }
 var gui = new dat.GUI({ height:500});
 var txt = "PLAY THEN !!" ;
@@ -54,10 +56,10 @@ controlFolder.add(controls, 'current_audio',audios).name('PLAYLIST').onChange(()
   ctx.fillText(txt, canvas.width/2, canvas.height/2); 
 }
 );
-controlFolder.add(controls,'Radius',10,250).name('Radius').onChange(()=>{});
-controlFolder.add(controls,'intensity',1,15).name('VIBRATIONS').onChange(()=>{});
-controlFolder.add(controls,'separation',1,10).listen();
-controlFolder.add(controls,'frequency',0.005,0.009).listen();
+controlFolder.add(controls,'Radius',10,250).name('RADIUS').onChange(()=>{});
+controlFolder.add(controls,'is_circle').name('CIRCLE').onChange(()=>{});
+controlFolder.add(controls,'vibrate').listen();
+// controlFolder.add(controls,'frequency',0.005,0.009).listen();
 
 controlFolder.open();  
 
@@ -85,7 +87,6 @@ function animate(){
     }
     else 
     audio.pause();
-
     ctx.beginPath();
     analyser.getByteTimeDomainData(dataArray);  
     analyser.getByteFrequencyData(dataArray2);
@@ -93,7 +94,9 @@ function animate(){
     ctx.clearRect(0,0,innerWidth,innerHeight);
     Radius = controls.Radius + (dataArray[0]/20)*controls.intensity;
     time++;
-    console.log(dataArray[30]/3)
+    if(controls.vibrate)
+    document.querySelector('img').style = ' transform:skewX('+Math.cos(dataArray2[100]/70)+'deg);';
+    if(controls.is_circle){
     if(dataArray[30]/3 > 49){
     bass_radius = dataArray[10]*7/3;
     ctx.arc(innerWidth/2, innerHeight/2, bass_radius*1.5, 0 , Math.PI*2 ,0 );
@@ -104,7 +107,7 @@ function animate(){
      ctx.arc(innerWidth/2, innerHeight/2, bass_radius, 0 , Math.PI*2 ,0 );
     }
 
-   
+  }
     
     for(var i = 0;i < bufferLength; i++){
         let angle = i*angular_width*controls.separation;
@@ -141,12 +144,3 @@ function draw_bars(ctx, angle,height,Radius){
   ctx.translate(-innerWidth/2, -innerHeight/2);
 }
 
-// window.setInterval(function(){ colors.outer = Math.floor(Math.random()*360)},1500);
-// function hexToRgbNew(hex) {
-//   var arrBuff = new ArrayBuffer(4);
-//   var vw = new DataView(arrBuff);
-//   vw.setUint32(0,parseInt(hex, 16),false);
-//   var arrByte = new Uint8Array(arrBuff);
-
-//   return arrByte[1] + "," + arrByte[2] + "," + arrByte[3];
-// }
