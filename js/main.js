@@ -13,7 +13,7 @@ var animationref = null ;
 const audioLoader = new AudioLoader();
 var audios = ['audio_test','audio_test2','audio_test3','audio_test4','audio_test5','audio_test6','audio_test7','audio_test8','audio_test9','audio_test10','audio_test11'];
 var controls = {
-  current_audio:'audio_test11',
+  current_audio:'audio_test7',
   is_audio_playing:false,
   intensity:1.7,
   auto_play:true,
