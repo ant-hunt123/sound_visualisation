@@ -58,7 +58,7 @@ controlFolder.add(controls, 'current_audio',audios).name('PLAYLIST').onChange(()
 );
 controlFolder.add(controls,'Radius',10,250).name('RADIUS').onChange(()=>{});
 controlFolder.add(controls,'is_circle').name('CIRCLE').onChange(()=>{});
-controlFolder.add(controls,'vibrate').listen();
+controlFolder.add(controls,'vibrate').name('VIBRATE');
 // controlFolder.add(controls,'frequency',0.005,0.009).listen();
 
 controlFolder.open();  
