@@ -58,7 +58,7 @@ controlFolder.add(controls, 'current_audio',audios).name('PLAYLIST').onChange(()
 );
 controlFolder.add(controls,'Radius',10,250).name('RADIUS').onChange(()=>{});
 controlFolder.add(controls,'is_circle').name('CIRCLE').onChange(()=>{});
-controlFolder.add(controls,'vibrate').name('VIBRATE');
+// controlFolder.add(controls,'vibrate').name('VIBRATE');
 // controlFolder.add(controls,'frequency',0.005,0.009).listen();
 
 controlFolder.open();  
@@ -94,9 +94,7 @@ function animate(){
     ctx.clearRect(0,0,innerWidth,innerHeight);
     Radius = controls.Radius + (dataArray[0]/20)*controls.intensity;
     time++;
-    if(controls.vibrate){
-    document.querySelector('img').style = ' transform:skewX('+Math.cos(dataArray2[100]/100)+'deg);';
-    }
+    
     if(controls.is_circle){
     if(dataArray[30]/3 > 49){
     bass_radius = dataArray[10]*7/3;
