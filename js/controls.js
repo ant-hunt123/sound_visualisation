@@ -6,7 +6,7 @@ controls = {
     auto_play:true,
     Radius:250,
     separation:2.7,
-    frequency:0.005,
+    frequency:0.002,
     font_size:'8vw',
     is_circle:true,
     vibrate:true,
