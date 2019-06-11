@@ -1,11 +1,5 @@
-var Radius;
-var time = 0;
-var bass_radius;
-var frequency = 0.005;
-var radian = Math.PI/180;
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-audio.crossOrigin = "anonymous";
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 if(window.innerWidth<300)
@@ -18,20 +12,18 @@ ctx.textAlign = "center";
 ctx.fillText(txt, canvas.width/2, canvas.height/2); 
 
 function start(){
-var audioctx = new AudioContext();
-const source = audioctx.createMediaElementSource(audio); 
-const gainNode = audioctx.createGain();
-gainNode.gain.value = 7;
-source.connect(gainNode).connect(audioctx.destination);
-var analyser = audioctx.createAnalyser();
+audioctx = new AudioContext();
+source = audioctx.createMediaElementSource(audio); 
+analyser = audioctx.createAnalyser();
 source.disconnect();
 source.connect(analyser);
-analyser.fftSize =1024;
+analyser.fftSize = 512/2;
 analyser.connect(audioctx.destination);
-var bufferLength = analyser.frequencyBinCount;
-var dataArray = new Uint8Array(bufferLength);
-var dataArray2 = new Uint8Array(bufferLength);
-var angular_width = Math.PI*2/(bufferLength);
+bufferLength = analyser.frequencyBinCount;
+time_domain_data = new Uint8Array(bufferLength);
+frequency_domain_data = new Uint8Array(bufferLength);
+angular_width = Math.PI*2/(bufferLength);
+
 function animate(){
     if(controls.is_audio_playing){
       audio.play();
@@ -42,57 +34,94 @@ function animate(){
     ctx.beginPath();
     animationref = requestAnimationFrame(animate) ;
     ctx.clearRect(0,0,innerWidth,innerHeight);    
-    analyser.getByteTimeDomainData(dataArray);  
-    analyser.getByteFrequencyData(dataArray2);
-    Radius = controls.Radius + (dataArray2[bufferLength-2])*controls.intensity;
+
+    analyser.getByteTimeDomainData(time_domain_data);  
+    analyser.getByteFrequencyData(frequency_domain_data);
+
+    Radius = controls.Radius+ (frequency_domain_data[80])*controls.intensity;
+    Radius2 = controls.Radius+ (frequency_domain_data[80])*controls.intensity*8;
+    Radius3 = controls.Radius+ (time_domain_data[80])*controls.intensity*8;
     time++;    
+
     if(controls.is_circle){
-    if(dataArray[30]/3 > 49){
-    bass_radius = dataArray[10]*7/3;
-    ctx.arc(innerWidth/2, innerHeight/2, bass_radius*1.5, 0 , Math.PI*2 ,0 );
-    }
+      if(time_domain_data[80]/3 > 46){
+        high = true;      
+        bass_radius = time_domain_data[10]*7/3;
+        ctx.beginPath();
+        ctx.arc(innerWidth/2, innerHeight/2, bass_radius*1.5, 0 , Math.PI*2 ,0 );
+        ctx.strokeStyle = controls.color;
+        ctx.shadowBlur = 200;
+        ctx.stroke();
+        ctx.closePath();
+      }
 
-    else {
-     bass_radius =dataArray[10]/3 ; 
-     ctx.arc(innerWidth/2, innerHeight/2, bass_radius, 0 , Math.PI*2 ,0 );
-    }
-
-  }
-    
-    for(var i = 0;i < bufferLength; i++){
-        let angle = i*angular_width*controls.separation;
-        let omega1 = Math.sin(time*controls.frequency);
-        let omega2 = Math.cos(time*controls.frequency);
-        let omega3 = Math.sin(time*controls.frequency+Math.PI)
-        if(i*angular_width*2.7<=Math.PI*2){
-        draw_bars(ctx,i*angular_width*2.7 + omega1 ,dataArray2[i]/3 ,Radius);
-        }
-        if(angle>=(Math.PI*2)/3 && angle<Math.PI*13/6){
-        draw_bars(ctx,angle+omega3,dataArray[i]/12,Radius/1.3);
-        draw_bars(ctx,angle+omega3+Math.PI,dataArray[i]/12,Radius/2);    
-        }
-        if(angle<=Math.PI*2)
-        draw_bars(ctx,angle+omega2 ,dataArray[100]/10,dataArray2[0]/60);
-
-  
-    }
+      if( time_domain_data[30]/3 < 40) {
+         high = false ;
+        bass_radius =time_domain_data[10]/3 ; 
+        ctx.beginPath();
+        ctx.arc(innerWidth/2, innerHeight/2, bass_radius, 0 , Math.PI*2 ,0 );
+        ctx.stroke();
+        ctx.closePath();
+      }
    
+    }
+    radius1 = Radius3/3;
+    radius2 = Radius2/1.2;
+    radius3 = Radius;
+    omega1 = Math.sin(time*controls.frequency*2);
+    omega2 = Math.sin(time*controls.frequency + Math.PI);
+    omega3 = Math.sin(time*controls.frequency + Math.PI/2);
+    for(var i = 1;i < bufferLength; i++){
+        angle = i*(angular_width)*controls.separation; 
+        angle2 = i*(angular_width)*controls.side_length ;
+        if(angle>2*radian && angle<Math.PI/2-2*radian || angle>Math.PI/2+2*radian&&angle<Math.PI-2*radian||angle>Math.PI+2*radian&&angle<Math.PI*3/2-2*radian||angle>Math.PI*3/2+2*radian&&angle<Math.PI*2-2*radian){
+          draw_bars(ctx,angle+omega2,-10,radius1); 
+          draw_bars(ctx,angle+omega3,+10,radius2); 
+         }
+       draw_polygon(ctx,center,controls.sides,Radius/1.2+ frequency_domain_data[80]/2,omega1); 
+      }
+
 }
 animate();
 }
 
 function draw_bars(ctx, angle,height,Radius){
- ctx.translate(innerWidth/2, innerHeight/2);
+  ctx.translate(innerWidth/2, innerHeight/2);
   ctx.moveTo(0, 0);
   ctx.lineWidth = 3;
   ctx.rotate(angle);
+  ctx.beginPath();
   ctx.moveTo(0,-Radius);
   ctx.lineTo(0,-(Radius+height));
   ctx.moveTo(0,0);
+  if(high) ctx.strokeStyle = "red";
+  else 
   ctx.strokeStyle =  controls.color;
+
   ctx.stroke();
-  ctx.beginPath();
+  ctx.closePath();
   ctx.rotate(-angle);
   ctx.translate(-innerWidth/2, -innerHeight/2);
 }
+
+function draw_polygon(ctx, center, sides, radius, omega){
+  let angular_width = Math.PI*2/sides;
+  ctx.beginPath();
+  for(let i = 0; i<sides; i++){
+    ctx.moveTo(move_point(center,i,radius,angular_width,omega).x,move_point(center,i,radius,angular_width,omega).y);
+    ctx.lineTo(move_point(center,i+1,radius,angular_width,omega).x,move_point(center,i+1,radius,angular_width,omega).y);
+  }
+  ctx.closePath();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'cyan';
+  ctx.stroke();
+  
+}
+function move_point(center,index,radius,angular_width,omega){
+  let angle = index*angular_width;
+  return position = {x:center.x + (radius)*Math.cos(angle+omega),y:center.y + (radius)*Math.sin(angle+omega) };
+}
+
+
+
 

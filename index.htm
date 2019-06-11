@@ -1,18 +1,18 @@
 <html>
     <head>
-     <link rel = "stylesheet" href = "assets/main.css">
+     <link rel = "stylesheet" href = "assets/styles/main.css">
     </head>
 <body>
-    <img  src = 'assets/bgimage.jpg'>
-
-    <canvas></canvas>
+    <img  src = 'assets/images/bgimage.jpg'>
     <canvas id = "canvas2"></canvas>
-    <script src = "js/AudioLoader.js"></script> 
+    <input type ='file' accept = "audio/*" onchange = "read_file(event)"></input>
+    <script src = "js/AudioLoader.js"></script>
     <script src = "js/dat.gui.js"></script>
     <script src = "js/controls.js"></script>
+    <script src = "js/file_reader.js"></script>
     <script src = "js/main.js"></script>
-    <script src = "js/background_animation.js"></script>    
+    <script src = "js/background_animation.js"></script>
 
-    
+
 </body>
 </html>
