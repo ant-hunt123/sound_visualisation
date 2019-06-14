@@ -11,9 +11,9 @@ controls = {
     is_circle:true,
     vibrate:true,
     color: "rgb(230,148, 1)",
-    sides:3
+    sides:4
   
-  }
+  } , counter = 0 , limit = 8 ;
 audio = new Audio(audio_path);
 
 gui = new dat.GUI({ height:500});
