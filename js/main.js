@@ -18,8 +18,8 @@ function animate(){
     animationref = requestAnimationFrame(animate);
     ctx.clearRect(0,0,innerWidth,innerHeight);    
 
-    let frequency_domain_data = audiodata.frequency_domain();
-    let time_domain_data = audiodata.time_domain();
+    let frequency_domain_data = audiodata.frequency_domain(1);
+    let time_domain_data = audiodata.time_domain(2);
     Radius = controls.Radius+ (frequency_domain_data[80])*controls.intensity*200;
     Radius2 = controls.Radius+ (frequency_domain_data[80])*controls.intensity*8;
     Radius3 = controls.Radius+ (time_domain_data[80])*controls.intensity*8;
