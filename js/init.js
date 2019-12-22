@@ -15,13 +15,32 @@ controls = {
   
   } , counter = 0 , limit = 8 ;
 
-const canvas = document.querySelector('canvas'), ctx = canvas.getContext('2d');
+const canvas = document.getElementById('canvas1'), ctx = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 window.onresize = ()=>{ 
   center = {x:innerWidth/2,y:innerHeight/2};
    canvas.width = innerWidth;
   canvas.height = innerHeight;
+
+};
+
+const canvas2 = document.getElementById('canvas2'), ctx2 = canvas2.getContext('2d');
+canvas2.width = innerWidth;
+canvas2.height = innerHeight;
+window.onresize = ()=>{ 
+  center = {x:innerWidth/2,y:innerHeight/2};
+   canvas2.width = innerWidth;
+  canvas2.height = innerHeight;
+
+};
+const canvas3 = document.getElementById('canvas3'), ctx3 = canvas3.getContext('2d');
+canvas3.width = innerWidth;
+canvas3.height = innerHeight;
+window.onresize = ()=>{ 
+  center = {x:innerWidth/2,y:innerHeight/2};
+   canvas3.width = innerWidth;
+  canvas3.height = innerHeight;
 
 };
 if(window.innerWidth<300)
@@ -88,7 +107,10 @@ draw_bars = (ctx, angle,height,Radius) => {
     ctx.closePath();
     ctx.lineWidth = .5;
     ctx.strokeStyle = 'cyan';
-    ctx.shadowBlur = 200 ;
+    ctx.shadowBlur = 2 ;
+    ctx.shadowColor = "white";
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
     ctx.stroke();
     
   }

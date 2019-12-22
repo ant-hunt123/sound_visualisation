@@ -1,9 +1,12 @@
 body{
     margin: 0 px;
+    background-color: black;
 }
 
 input{
 width:80%;
+position: absolute;
+z-index: 4;
 }
 img{
     z-index: -1;
@@ -37,7 +40,20 @@ canvas{
     }
    
 }
+
+#canvas1{
+    position: absolute;
+    top:0px;
+    left:0px;
+    z-index: 0;
+}
 #canvas2{
+    position: absolute;
+    top:0px;
+    left:0px;
+    z-index: -2;
+}
+#canvas3{
     position: absolute;
     top:0px;
     left:0px;
